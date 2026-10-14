@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}CareProof AI — Transparent Social Media Fundraising{% endblock %}</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            },
+            trust: {
+              blue: '#2563eb',
+              indigo: '#4f46e5',
+              gold: '#f59e0b',
+              emerald: '#10b981',
+              rose: '#f43f5e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    .glass-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(229, 231, 235, 0.8);
+    }
+    .badge-shimmer {
+      background: linear-gradient(90deg, rgba(16,185,129,0.1) 0%, rgba(16,185,129,0.3) 50%, rgba(16,185,129,0.1) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 3s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .reel-phone {
+      width: 320px;
+      height: 640px;
+      border-radius: 40px;
+      border: 12px solid #1f2937;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- Top Announcement Bar -->
+  <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 text-white text-xs font-semibold px-4 py-2 text-center tracking-wide flex items-center justify-center gap-2 shadow-sm">
+    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-white/20 text-white">Google H2S Prototype</span>
+    <span>CareProof AI: Direct Hospital Escrow Routing • Gemini Verification Copilot • Real-Time Overfunding Lock</span>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2 group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+            <i class="fa-solid fa-shield-halved text-xl"></i>
+          </div>
+          <div>
+            <span class="font-display font-bold text-xl tracking-tight text-slate-900 flex items-center gap-1.5">
+              CareProof<span class="text-emerald-600">AI</span>
+              <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">Verified</span>
+            </span>
+            <p class="text-[10px] text-slate-500 font-medium">Transparent Social Media Fundraising</p>
+          </div>
+        </a>
+
+        <!-- Navigation Links -->
+        <nav class="hidden md:flex items-center gap-1 text-sm font-semibold text-slate-600">
+          <a href="/" class="px-3 py-2 rounded-lg hover:text-emerald-600 hover:bg-slate-100 transition-colors">
+            <i class="fa-solid fa-compass mr-1.5 text-slate-400"></i> Explore Campaigns
+          </a>
+          <a href="/creator-studio" class="px-3 py-2 rounded-lg hover:text-emerald-600 hover:bg-slate-100 transition-colors">
+            <i class="fa-solid fa-wand-magic-sparkles mr-1.5 text-amber-500"></i> Gemini Reel Studio
+          </a>
+          <a href="/verifier" class="px-3 py-2 rounded-lg hover:text-emerald-600 hover:bg-slate-100 transition-colors">
+            <i class="fa-solid fa-user-shield mr-1.5 text-indigo-500"></i> Verifier Copilot
+          </a>
+          <a href="/hospital-escrow" class="px-3 py-2 rounded-lg hover:text-emerald-600 hover:bg-slate-100 transition-colors">
+            <i class="fa-solid fa-hospital mr-1.5 text-emerald-600"></i> Hospital Escrow Ledger
+          </a>
+        </nav>
+
+        <!-- CTA Action -->
+        <div class="flex items-center gap-3">
+          <a href="/create" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow-md shadow-emerald-600/25 transition-all hover:-translate-y-0.5">
+            <i class="fa-solid fa-plus text-xs"></i> Start Verified Campaign
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Block -->
+  <main class="flex-grow">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-400 text-sm py-12 border-t border-slate-800 mt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-emerald-500 flex items-center justify-center text-white text-sm font-bold">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <span class="text-white font-display font-bold text-lg">CareProof AI</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Eliminating medical fundraising fraud on social media. Zero money touches creator wallets — 100% routed to verified hospitals with real-time target lock.
+          </p>
+          <div class="flex items-center gap-2 text-xs text-emerald-400 font-medium">
+            <i class="fa-solid fa-check-double"></i> Built for Google H2S Hackathon
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3">Key Innovations</h4>
+          <ul class="space-y-2 text-xs">
+            <li><span class="text-emerald-400 font-semibold">• Direct Hospital Escrow:</span> Creator wallet bypass</li>
+            <li><span class="text-emerald-400 font-semibold">• Overfunding Lock:</span> Target-capped auto-pause</li>
+            <li><span class="text-emerald-400 font-semibold">• Gemini Verification:</span> Bill vs Claim discrepancy check</li>
+            <li><span class="text-emerald-400 font-semibold">• Multilingual Reels:</span> AI story & captions in 6 languages</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3">Partner Hospitals</h4>
+          <ul class="space-y-2 text-xs">
+            <li>• Apollo Hospitals Bengaluru (Escrow #984210)</li>
+            <li>• Fortis Memorial Research Institute (Escrow #112093)</li>
+            <li>• Tata Memorial Cancer Centre (Escrow #774011)</li>
+            <li>• Real-Time RTGS/ACH Automated Clearing House</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3">Google Cloud Stack</h4>
+          <p class="text-xs text-slate-400 mb-2">Powered by:</p>
+          <div class="flex flex-wrap gap-1.5 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">Gemini 2.0 Flash</span>
+            <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">Firebase Firestore</span>
+            <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">Google Cloud Run</span>
+            <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">Stripe / Webhooks</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+        <p>© 2026 CareProof AI — Google H2S Hackathon Prototype. The 404 Brigade.</p>
+        <div class="flex gap-4">
+          <a href="/hospital-escrow" class="hover:text-slate-300">Escrow Transparency Policy</a>
+          <a href="/verifier" class="hover:text-slate-300">Auditor Protocol</a>
+          <a href="/creator-studio" class="hover:text-slate-300">Gemini Reel Generator</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <script>
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-xl text-sm font-semibold flex items-center gap-3 transition-all duration-300 transform translate-y-4 opacity-0 ${
+        type === 'success' ? 'bg-emerald-900 text-emerald-100 border border-emerald-700' :
+        type === 'warning' ? 'bg-amber-900 text-amber-100 border border-amber-700' :
+        'bg-rose-900 text-rose-100 border border-rose-700'
+      }`;
+      const icon = type === 'success' ? 'fa-circle-check text-emerald-400' :
+                   type === 'warning' ? 'fa-triangle-exclamation text-amber-400' :
+                   'fa-circle-xmark text-rose-400';
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.remove('translate-y-4', 'opacity-0');
+      }, 10);
+      setTimeout(() => {
+        toast.classList.add('translate-y-4', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+  </script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

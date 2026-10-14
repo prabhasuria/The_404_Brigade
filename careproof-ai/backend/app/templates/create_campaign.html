@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Start a Verified Campaign — CareProof AI{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white border border-emerald-900/50 shadow-xl space-y-2">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+      <i class="fa-solid fa-file-shield"></i> Verified Medical Fundraising Submission
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-extrabold font-display">
+      Start a Transparent CareProof Campaign
+    </h1>
+    <p class="text-xs sm:text-sm text-slate-300">
+      Every campaign undergoes Google Gemini automated discrepancy checking followed by human verification. Funds are exclusively routed to the verified hospital escrow.
+    </p>
+  </div>
+
+  <!-- Form Card -->
+  <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+    <form id="create-form" onsubmit="submitNewCampaign(event)" class="space-y-6 text-xs">
+      
+      <!-- Section 1: Patient Details -->
+      <div class="space-y-4">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+          <i class="fa-solid fa-user-injured text-emerald-600"></i> 1. Patient & Clinical Information
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Patient Full Name *</label>
+            <input type="text" name="patient_name" required placeholder="e.g. Aarushi Mehta" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Patient Age (Years) *</label>
+            <input type="number" name="patient_age" required min="0" max="120" value="8" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Primary Medical Diagnosis *</label>
+            <input type="text" name="diagnosis" required placeholder="e.g. Bilateral Cochlear Implant Candidacy" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Attending Surgeon / Consultant Doctor *</label>
+            <input type="text" name="doctor_name" required placeholder="e.g. Dr. K. Radhakrishnan (ENT Reg #8841)" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Hospital & Financials -->
+      <div class="space-y-4 pt-2">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+          <i class="fa-solid fa-hospital text-emerald-600"></i> 2. Partner Hospital & Financial Verification
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Accredited Partner Hospital *</label>
+            <select name="hospital_id" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs bg-white font-medium">
+              {% for h in hospitals %}
+                <option value="{{ h.id }}">{{ h.name }} ({{ h.city }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Target Bill Amount ($ USD) *</label>
+            <input type="number" name="target_amount" id="target_amount" required min="100" step="100" value="18000" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-900">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Hospital Estimate Document Amount ($ USD) *</label>
+            <input type="number" name="doc_amount_estimate" id="doc_amount_estimate" required min="100" step="100" value="18000" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs">
+            <span class="text-[10px] text-slate-400 mt-1 block">Gemini cross-examines this against requested target to detect discrepancies</span>
+          </div>
+
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Disclosed Overfunding Surplus Policy *</label>
+            <select name="surplus_policy" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs bg-white">
+              <option value="HOSPITAL_EMERGENCY_POOL">Route surplus to Hospital Emergency Pediatric Pool</option>
+              <option value="REFUND_EXCESS">Refund concurrent excess donations to donors</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Social Campaign Story & Creator Handle -->
+      <div class="space-y-4 pt-2">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+          <i class="fa-solid fa-bullhorn text-emerald-600"></i> 3. Campaign Narrative & Social Media Creator
+        </h3>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Campaign Headline Title *</label>
+          <input type="text" name="title" required placeholder="e.g. Help 8-Year-Old Aarushi Hear For The First Time: Bilateral Cochlear Surgery" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold">
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Full Clinical Story & Urgency Description *</label>
+          <textarea name="story" required rows="4" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs" placeholder="Describe the medical situation, background of family, and how direct hospital escrow payment ensures 100% accountability..."></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Advocate / Creator Name *</label>
+            <input type="text" name="creator_name" required value="Sunil Varma" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Creator Social Handle *</label>
+            <input type="text" name="creator_social_handle" required value="@sunil_speaks" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Primary Platform</label>
+            <select name="creator_social_platform" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs bg-white">
+              <option value="Instagram">Instagram</option>
+              <option value="YouTube">YouTube</option>
+              <option value="TikTok">TikTok</option>
+              <option value="X">X (Twitter)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+        <a href="/" class="text-slate-500 hover:text-slate-800 font-semibold">Cancel</a>
+        <button type="submit" id="btn-submit" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition-all flex items-center gap-2">
+          <i class="fa-solid fa-sparkles"></i> Submit for Gemini AI Verification
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+
+<script>
+  async function submitNewCampaign(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Running Gemini AI Pre-Audit...`;
+
+    const form = document.getElementById('create-form');
+    const formData = new FormData(form);
+
+    try {
+      const res = await fetch('/api/campaigns', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        showToast("Campaign submitted! Gemini AI audit completed.", "success");
+        setTimeout(() => {
+          window.location.href = `/campaign/${data.id}`;
+        }, 1200);
+      } else {
+        showToast(data.detail || "Submission failed", "error");
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-sparkles"></i> Submit for Gemini AI Verification`;
+      }
+    } catch (err) {
+      showToast("Network error submitting campaign", "error");
+      btn.disabled = false;
+      btn.innerHTML = `<i class="fa-solid fa-sparkles"></i> Submit for Gemini AI Verification`;
+    }
+  }
+</script>
+{% endblock %}

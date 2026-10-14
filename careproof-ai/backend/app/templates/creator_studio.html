@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+
+{% block title %}Gemini Reel & Story Creator Studio — CareProof AI{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white border border-indigo-900/50 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+    <div class="space-y-2 max-w-2xl">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Powered by Google Gemini 2.0
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold font-display">
+        AI Reel, Story & Caption Creator Studio
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-300">
+        Generate transparent, high-conversion multilingual 9:16 Reel scripts, captions, and accessible campaign stories while automatically screening claims for inconsistencies.
+      </p>
+    </div>
+
+    <!-- Active Campaign Selector & Language Controls -->
+    <div class="bg-white/10 backdrop-blur p-4 rounded-2xl border border-white/20 space-y-3 w-full md:w-80">
+      <div>
+        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-300 block mb-1">Select Campaign</label>
+        <select id="select-campaign" onchange="onCampaignChange()" class="w-full bg-slate-800 text-white text-xs font-semibold rounded-xl border border-slate-700 p-2 focus:ring-2 focus:ring-emerald-500">
+          {% for c in campaigns %}
+            <option value="{{ c.id }}" {% if selected_campaign and selected_campaign.id == c.id %}selected{% endif %}>
+              {{ c.patient_name }} ({{ c.hospital_name.split()[0] }})
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-slate-300 block mb-1">Language</label>
+          <select id="select-language" class="w-full bg-slate-800 text-white text-xs rounded-xl border border-slate-700 p-1.5">
+            <option value="en">English</option>
+            <option value="hi">Hindi (हिंदी)</option>
+            <option value="es">Spanish (Español)</option>
+            <option value="ta">Tamil (தமிழ்)</option>
+            <option value="bn">Bengali (বাংলা)</option>
+            <option value="mr">Marathi (मराठी)</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-slate-300 block mb-1">Platform</label>
+          <select id="select-platform" class="w-full bg-slate-800 text-white text-xs rounded-xl border border-slate-700 p-1.5">
+            <option value="Instagram">Instagram Reel</option>
+            <option value="TikTok">TikTok</option>
+            <option value="YouTube">YouTube Shorts</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Studio Navigation Tabs -->
+  <div class="flex items-center gap-2 border-b border-slate-200 pb-2 text-sm font-bold text-slate-600">
+    <button onclick="switchTab('reels')" id="tab-btn-reels" class="tab-btn active px-4 py-2 rounded-xl bg-slate-900 text-white flex items-center gap-2">
+      <i class="fa-solid fa-video text-amber-400"></i> Vertical Reel Script & Simulator
+    </button>
+    <button onclick="switchTab('captions')" id="tab-btn-captions" class="tab-btn px-4 py-2 rounded-xl hover:bg-slate-200 text-slate-700 flex items-center gap-2">
+      <i class="fa-solid fa-closed-captioning text-emerald-600"></i> Verified Captions
+    </button>
+    <button onclick="switchTab('auditor')" id="tab-btn-auditor" class="tab-btn px-4 py-2 rounded-xl hover:bg-slate-200 text-slate-700 flex items-center gap-2">
+      <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> Post Discrepancy Auditor
+    </button>
+    <button onclick="switchTab('accessible')" id="tab-btn-accessible" class="tab-btn px-4 py-2 rounded-xl hover:bg-slate-200 text-slate-700 flex items-center gap-2">
+      <i class="fa-solid fa-universal-access text-indigo-500"></i> Accessible Story
+    </button>
+  </div>
+
+  <!-- Tab 1: Vertical Reel Script & Phone Simulator -->
+  <div id="tab-reels" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- Script generator & scenes list (7 cols) -->
+    <div class="lg:col-span-7 space-y-6">
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-bold text-lg text-slate-900">Multilingual 9:16 Video Script</h3>
+            <p class="text-xs text-slate-500">Timed cues with voiceover, visual cues, and CareProof trust triggers</p>
+          </div>
+          <button onclick="generateReel()" id="btn-gen-reel" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate with Gemini
+          </button>
+        </div>
+
+        <!-- Reel Details output -->
+        <div id="reel-output" class="space-y-4">
+          <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl text-xs text-amber-900 flex items-center justify-between">
+            <span id="reel-hook" class="font-bold">Hook: "Have you ever donated to a fundraiser and wondered if the money actually reached the hospital?"</span>
+            <span id="reel-duration" class="px-2 py-0.5 rounded-full bg-amber-200 font-bold text-[10px]">40s</span>
+          </div>
+
+          <!-- Scenes Container -->
+          <div id="scenes-container" class="space-y-3">
+            <!-- Dynamic Scenes populated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Phone Mockup (5 cols) -->
+    <div class="lg:col-span-5 flex justify-center">
+      <div class="reel-phone bg-slate-900 relative overflow-hidden flex flex-col justify-between text-white p-5 select-none">
+        
+        <!-- Background Mock Image / Video Frame -->
+        <img id="phone-bg" src="https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80" class="absolute inset-0 w-full h-full object-cover opacity-60">
+
+        <!-- Top Status Bar & Platform Overlay -->
+        <div class="relative z-10 flex items-center justify-between text-xs font-bold pt-2">
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle text-rose-500 text-[8px] animate-ping"></i> LIVE REEL PREVIEW</span>
+          <span class="px-2 py-0.5 rounded bg-black/40 backdrop-blur text-[10px]">9:16 Vertical</span>
+        </div>
+
+        <!-- CareProof Verified Holographic Sticker (Key Innovation) -->
+        <div class="relative z-10 self-start my-auto">
+          <div class="bg-slate-900/90 backdrop-blur border-2 border-emerald-400 p-3 rounded-2xl shadow-2xl space-y-1.5 max-w-[240px]">
+            <div class="flex items-center gap-1.5 text-emerald-400 text-xs font-bold">
+              <i class="fa-solid fa-shield-halved"></i> CareProof Verified
+            </div>
+            <div class="text-[11px] font-semibold text-slate-200 leading-tight">
+              Direct Escrow Payout: <span id="phone-hospital" class="text-white font-bold">Apollo Hospitals</span>
+            </div>
+            <div class="text-[10px] text-emerald-300 font-medium">
+              🔒 Overfunding Lock Active
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Teleprompter & Onscreen Text Cue -->
+        <div class="relative z-10 space-y-3 pb-3">
+          <!-- Subtitles / On-Screen Text -->
+          <div class="bg-black/70 backdrop-blur p-3 rounded-xl border border-white/10 text-center">
+            <span class="text-[10px] uppercase tracking-wider text-amber-400 font-bold block mb-0.5">On-Screen Text Cue</span>
+            <p id="phone-onscreen-text" class="text-xs font-extrabold text-white">
+              🛡️ CareProof Verified | Direct Hospital Escrow
+            </p>
+          </div>
+
+          <!-- Creator Handle & Caption Preview -->
+          <div class="text-xs space-y-1">
+            <div class="font-bold flex items-center gap-1.5">
+              <span id="phone-creator">@aarav_gives</span>
+              <span class="w-1 h-1 rounded-full bg-white"></span>
+              <span class="text-emerald-400 font-semibold text-[10px]">Follow</span>
+            </div>
+            <p id="phone-caption-preview" class="text-[11px] text-slate-300 line-clamp-2">
+              Every dollar routes directly to hospital escrow with real-time target cap. Link in bio!
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tab 2: Verified Social Captions -->
+  <div id="tab-captions" class="tab-content hidden space-y-6">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-lg text-slate-900">Generated Transparent Captions</h3>
+          <p class="text-xs text-slate-500">Designed to maximize donor trust with verified hashes and hospital escrow links</p>
+        </div>
+        <button onclick="generateCaptions()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-2">
+          <i class="fa-solid fa-arrows-rotate"></i> Refresh Captions
+        </button>
+      </div>
+
+      <div id="captions-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Dynamic Caption Cards -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 3: Social Media Draft Discrepancy Auditor -->
+  <div id="tab-auditor" class="tab-content hidden space-y-6">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+      <div>
+        <h3 class="font-bold text-lg text-slate-900">Social Media Draft Inconsistency Auditor</h3>
+        <p class="text-xs text-slate-500">Gemini audits your proposed post draft against the verified hospital estimate to prevent fraud or misleading claims</p>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-bold text-slate-700 block mb-1">Paste Your Proposed Social Media Post or Reel Script</label>
+          <textarea id="draft-text" rows="5" class="w-full p-4 rounded-2xl border border-slate-300 text-xs text-slate-800 focus:ring-2 focus:ring-emerald-500" placeholder="e.g. Please donate urgently to help little Rohan! Send money to my personal UPI aarav@upi or PayPal. We need $50,000 within 2 hours or surgery is cancelled!"></textarea>
+        </div>
+
+        <button onclick="auditDraft()" id="btn-audit-draft" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-600/25 flex items-center gap-2">
+          <i class="fa-solid fa-magnifying-glass-chart"></i> Audit Draft with Gemini Copilot
+        </button>
+
+        <div id="audit-result" class="hidden space-y-3 pt-4 border-t border-slate-100">
+          <!-- Result populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 4: Accessible Story -->
+  <div id="tab-accessible" class="tab-content hidden space-y-6">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-lg text-slate-900">Accessible Campaign Story & Medical Decoder</h3>
+          <p class="text-xs text-slate-500">Plain-language medical translations and screen-reader optimized alt-text</p>
+        </div>
+        <button onclick="generateAccessibleStory()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center gap-2">
+          <i class="fa-solid fa-universal-access"></i> Generate Accessible Story
+        </button>
+      </div>
+
+      <div id="accessible-output" class="space-y-6">
+        <!-- Content populated by JS -->
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('bg-slate-900', 'text-white'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+
+    document.getElementById(`tab-btn-${tab}`).classList.add('bg-slate-900', 'text-white');
+    document.getElementById(`tab-${tab}`).classList.remove('hidden');
+
+    if (tab === 'captions') generateCaptions();
+    if (tab === 'accessible') generateAccessibleStory();
+  }
+
+  async function generateReel() {
+    const campaignId = document.getElementById('select-campaign').value;
+    const language = document.getElementById('select-language').value;
+    const platform = document.getElementById('select-platform').value;
+
+    const btn = document.getElementById('btn-gen-reel');
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Gemini Thinking...`;
+
+    try {
+      const res = await fetch('/api/ai/generate-reel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          campaign_id: campaignId,
+          language: language,
+          social_platform: platform
+        })
+      });
+
+      const data = await res.json();
+      renderReelOutput(data);
+      showToast("Generated vertical Reel script with Gemini 2.0!", "success");
+    } catch (e) {
+      showToast("Error generating script", "error");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Generate with Gemini`;
+    }
+  }
+
+  function renderReelOutput(data) {
+    document.getElementById('reel-hook').innerText = `Hook: "${data.hook}"`;
+    document.getElementById('reel-duration').innerText = data.duration || "40s";
+
+    const container = document.getElementById('scenes-container');
+    container.innerHTML = '';
+
+    (data.scenes || []).forEach((sc, idx) => {
+      const div = document.createElement('div');
+      div.className = 'p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs';
+      div.innerHTML = `
+        <div class="flex items-center justify-between font-bold text-slate-800">
+          <span class="text-emerald-700"><i class="fa-solid fa-clapperboard mr-1"></i> Scene ${idx + 1} (${sc.timestamp})</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-slate-200 text-slate-700">${sc.onscreen_text}</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-slate-600">
+          <div class="bg-white p-2.5 rounded-xl border border-slate-100">
+            <strong class="text-[10px] uppercase tracking-wider text-slate-400 block">Visual Prompt</strong>
+            ${sc.visual}
+          </div>
+          <div class="bg-white p-2.5 rounded-xl border border-slate-100 text-slate-900 font-medium">
+            <strong class="text-[10px] uppercase tracking-wider text-slate-400 block">Voiceover (Read Aloud)</strong>
+            "${sc.audio_voiceover}"
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+
+    if (data.scenes && data.scenes.length > 0) {
+      document.getElementById('phone-onscreen-text').innerText = data.scenes[0].onscreen_text;
+    }
+  }
+
+  async function generateCaptions() {
+    const campaignId = document.getElementById('select-campaign').value;
+    const language = document.getElementById('select-language').value;
+
+    const res = await fetch('/api/ai/generate-captions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        campaign_id: campaignId,
+        language: language
+      })
+    });
+
+    const data = await res.json();
+    const grid = document.getElementById('captions-grid');
+    grid.innerHTML = '';
+
+    (data.captions || []).forEach(cap => {
+      const card = document.createElement('div');
+      card.className = 'p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-4 text-xs';
+      card.innerHTML = `
+        <div>
+          <span class="font-bold text-slate-900 block mb-2 text-sm">${cap.style}</span>
+          <pre class="whitespace-pre-wrap font-sans text-slate-700 text-xs leading-relaxed bg-white p-3 rounded-xl border border-slate-200">${cap.caption}</pre>
+        </div>
+        <button onclick="copyToClipboard(this)" data-text="${encodeURIComponent(cap.caption)}" class="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5">
+          <i class="fa-regular fa-copy"></i> Copy Caption
+        </button>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  async function auditDraft() {
+    const campaignId = document.getElementById('select-campaign').value;
+    const draftText = document.getElementById('draft-text').value;
+
+    if (!draftText.trim()) {
+      showToast("Please enter draft text to audit", "warning");
+      return;
+    }
+
+    const res = await fetch('/api/ai/audit-draft', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        campaign_id: campaignId,
+        creator_draft_text: draftText
+      })
+    });
+
+    const data = await res.json();
+    const container = document.getElementById('audit-result');
+    container.classList.remove('hidden');
+
+    const isSafe = data.is_safe_to_publish;
+    container.innerHTML = `
+      <div class="p-4 rounded-2xl border ${isSafe ? 'bg-emerald-50 border-emerald-300 text-emerald-950' : 'bg-rose-50 border-rose-300 text-rose-950'} space-y-3">
+        <div class="flex items-center gap-2 font-bold text-sm">
+          <i class="fa-solid ${isSafe ? 'fa-circle-check text-emerald-600' : 'fa-circle-exclamation text-rose-600'}"></i>
+          <span>${isSafe ? 'Draft Verified & Safe to Publish' : 'Inconsistencies & Fraud Risks Detected'}</span>
+        </div>
+        <p class="text-xs leading-relaxed font-medium">${data.recommendation}</p>
+        <ul class="space-y-1.5 text-xs">
+          ${data.flags.map(f => `<li class="flex items-start gap-2"><i class="fa-solid fa-chevron-right mt-1 text-[10px]"></i> <span>${f}</span></li>`).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
+  async function generateAccessibleStory() {
+    const campaignId = document.getElementById('select-campaign').value;
+    const res = await fetch('/api/ai/accessible-story', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ campaign_id: campaignId })
+    });
+
+    const data = await res.json();
+    const container = document.getElementById('accessible-output');
+    container.innerHTML = `
+      <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-4 text-xs">
+        <div>
+          <h4 class="font-bold text-sm text-slate-900 mb-1">Plain-Language Clinical Explanation</h4>
+          <p class="text-slate-700 leading-relaxed text-sm">${data.plain_language_summary}</p>
+        </div>
+
+        <div class="pt-2 border-t border-slate-200">
+          <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500 mb-2">Medical Jargon Decoder</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            ${data.medical_jargon_decoder.map(j => `
+              <div class="bg-white p-3 rounded-xl border border-slate-200">
+                <strong class="text-slate-900 block mb-1">${j.term}</strong>
+                <span class="text-slate-600">${j.simple_meaning}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-200 bg-white p-4 rounded-xl border border-slate-200">
+          <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500 mb-1">Screen-Reader Optimized Alt-Text</h4>
+          <p class="font-mono text-slate-800 text-xs">${data.screen_reader_alt_text}</p>
+        </div>
+      </div>
+    `;
+  }
+
+  function copyToClipboard(btn) {
+    const text = decodeURIComponent(btn.getAttribute('data-text'));
+    navigator.clipboard.writeText(text);
+    showToast("Caption copied to clipboard!", "success");
+  }
+
+  function onCampaignChange() {
+    generateReel();
+  }
+
+  // Load first reel on startup
+  window.onload = () => {
+    generateReel();
+  };
+</script>
+{% endblock %}

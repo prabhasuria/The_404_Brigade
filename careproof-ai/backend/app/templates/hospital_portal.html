@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Hospital Escrow & Direct Settlement Ledger — CareProof AI{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white border border-emerald-900/50 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+    <div class="space-y-2 max-w-2xl">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+        <i class="fa-solid fa-building-columns"></i> Prevent Misuse: Zero Creator Access
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold font-display">
+        Hospital Escrow & Direct Settlement Ledger
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-300">
+        All donations are routed directly into verified hospital escrow bank accounts. Funds can only be drawn against verified patient hospital invoices, completely eliminating creator diversion and personal wallet embezzlement.
+      </p>
+    </div>
+
+    <!-- Active Hospital Selector -->
+    <div class="bg-white/10 backdrop-blur p-4 rounded-2xl border border-white/20 w-full md:w-80">
+      <label class="text-[10px] font-bold uppercase tracking-wider text-slate-300 block mb-1">Select Partner Hospital</label>
+      <select id="select-hospital" onchange="onHospitalChange()" class="w-full bg-slate-800 text-white text-xs font-semibold rounded-xl border border-slate-700 p-2.5">
+        {% for h in hospitals %}
+          <option value="{{ h.id }}">{{ h.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <!-- Hospital Escrow Bank Account Card -->
+  <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+          <i class="fa-solid fa-shield-check"></i> Escrow Verification Active
+        </span>
+        <h2 id="hosp-name" class="text-xl sm:text-2xl font-bold text-slate-900 mt-2 font-display">
+          Apollo Hospitals Bannerghatta
+        </h2>
+        <p id="hosp-accreditation" class="text-xs text-slate-500">JCI & NABH Accredited Super-Specialty • Bengaluru, India</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="text-right">
+          <span class="text-[10px] uppercase font-bold text-slate-400 block">Total Direct Settled</span>
+          <span id="hosp-total-settled" class="text-2xl font-extrabold text-emerald-600 font-display">$19,450.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Banking Security Specs -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1">
+        <span class="text-[10px] font-bold uppercase text-slate-400 block">Escrow Bank & Branch</span>
+        <span id="hosp-bank" class="text-sm font-bold text-slate-900 block">HDFC Bank - Medical Escrow Division</span>
+        <span class="text-slate-500 text-[11px]">Direct Clearing: RTGS/ACH Automated</span>
+      </div>
+
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1">
+        <span class="text-[10px] font-bold uppercase text-slate-400 block">Escrow Account ID</span>
+        <span id="hosp-escrow-id" class="text-sm font-mono font-bold text-emerald-700 block">ESCROW-APOLLO-984210</span>
+        <span class="text-slate-500 text-[11px]">Protected Multi-Sig Settlement</span>
+      </div>
+
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1">
+        <span class="text-[10px] font-bold uppercase text-slate-400 block">Creator Wallet Access</span>
+        <span class="text-sm font-bold text-rose-600 block">BLOCKED (0.00%)</span>
+        <span class="text-slate-500 text-[11px]">Funds restricted solely to medical bills</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Hospital Disbursement Ledger -->
+  <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+      <div>
+        <h3 class="font-bold text-lg text-slate-900">Direct Hospital Settlement Records</h3>
+        <p class="text-xs text-slate-500">Every donation generates an immutable cryptographic bank routing receipt</p>
+      </div>
+      <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+        <i class="fa-solid fa-lock"></i> Escrow Secured
+      </span>
+    </div>
+
+    <!-- Table of settlements -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] tracking-wider border-y border-slate-200">
+          <tr>
+            <th class="py-3 px-4">Receipt Hash</th>
+            <th class="py-3 px-4">Patient Case</th>
+            <th class="py-3 px-4">Donor</th>
+            <th class="py-3 px-4">Settled Amount</th>
+            <th class="py-3 px-4">Payout Route</th>
+            <th class="py-3 px-4">Status</th>
+          </tr>
+        </thead>
+        <tbody id="settlements-table-body" class="divide-y divide-slate-100 text-slate-700">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  const hospitalsData = {
+    {% for h in hospitals %}
+      "{{ h.id }}": {
+        name: "{{ h.name }}",
+        city: "{{ h.city }}",
+        country: "{{ h.country }}",
+        accreditation: "{{ h.accreditation }}",
+        escrow_account_id: "{{ h.escrow_account_id }}",
+        bank_name: "{{ h.bank_name }}"
+      },
+    {% endfor %}
+  };
+
+  const sampleSettlements = [
+    { hash: "CP-REC-482019482A", patient: "Rohan Verma (Heart Surgery)", donor: "David Chen", amount: "$2,500.00", route: "HDFC Escrow #984210", status: "DIRECT_CREDITED" },
+    { hash: "CP-REC-948102941B", patient: "Rohan Verma (Heart Surgery)", donor: "Priya Patel", amount: "$500.00", route: "HDFC Escrow #984210", status: "DIRECT_CREDITED" },
+    { hash: "CP-REC-119283748C", patient: "Ananya Roy (Leukemia Chemotherapy)", donor: "Global Wellness Fund", amount: "$5,000.00", route: "SBI Escrow #774011", status: "DIRECT_CREDITED" },
+    { hash: "CP-REC-773829104D", patient: "Ananya Roy (Leukemia Chemotherapy)", donor: "Arun Mehra", amount: "$1,200.00", route: "SBI Escrow #774011", status: "DIRECT_CREDITED" },
+    { hash: "CP-REC-338291042E", patient: "Rohan Verma (Heart Surgery)", donor: "Elena Rostova", amount: "$150.00", route: "HDFC Escrow #984210", status: "DIRECT_CREDITED" }
+  ];
+
+  function onHospitalChange() {
+    const hospId = document.getElementById('select-hospital').value;
+    const hosp = hospitalsData[hospId];
+    if (hosp) {
+      document.getElementById('hosp-name').innerText = hosp.name;
+      document.getElementById('hosp-accreditation').innerText = `${hosp.accreditation} • ${hosp.city}, ${hosp.country}`;
+      document.getElementById('hosp-bank').innerText = hosp.bank_name;
+      document.getElementById('hosp-escrow-id').innerText = hosp.escrow_account_id;
+    }
+  }
+
+  function renderSettlements() {
+    const tbody = document.getElementById('settlements-table-body');
+    tbody.innerHTML = '';
+    sampleSettlements.forEach(s => {
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-slate-50/80 transition-colors';
+      tr.innerHTML = `
+        <td class="py-3 px-4 font-mono font-bold text-slate-900">${s.hash}</td>
+        <td class="py-3 px-4 font-semibold text-slate-900">${s.patient}</td>
+        <td class="py-3 px-4">${s.donor}</td>
+        <td class="py-3 px-4 font-bold text-emerald-700">${s.amount}</td>
+        <td class="py-3 px-4 font-mono text-[11px] text-slate-500">${s.route}</td>
+        <td class="py-3 px-4">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+            <i class="fa-solid fa-check-double text-emerald-600"></i> Settled
+          </span>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  window.onload = () => {
+    onHospitalChange();
+    renderSettlements();
+  };
+</script>
+{% endblock %}

@@ -1,0 +1,435 @@
+{% extends "base.html" %}
+
+{% block title %}{{ campaign.title }} — CareProof AI{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+  <!-- Breadcrumb & Top Bar -->
+  <div class="flex flex-wrap items-center justify-between gap-4 text-xs">
+    <nav class="flex items-center gap-2 text-slate-500">
+      <a href="/" class="hover:text-emerald-600">Home</a>
+      <span>/</span>
+      <a href="/#campaigns" class="hover:text-emerald-600">Campaigns</a>
+      <span>/</span>
+      <span class="text-slate-800 font-bold truncate max-w-xs">{{ campaign.patient_name }}</span>
+    </nav>
+
+    <!-- Social Campaign Link & Share -->
+    <div class="flex items-center gap-3">
+      {% if campaign.social_campaign_url %}
+      <a href="{{ campaign.social_campaign_url }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition-colors">
+        <i class="fa-brands fa-{{ campaign.creator_social_platform.lower() }} text-emerald-600"></i>
+        <span>Original Reel ({{ campaign.creator_social_handle }})</span>
+      </a>
+      {% endif %}
+      <a href="/creator-studio?campaign_id={{ campaign.id }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-semibold transition-colors">
+        <i class="fa-solid fa-wand-magic-sparkles text-amber-600"></i>
+        <span>AI Reel Studio</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Grid: Left Column Details & Documents, Right Column Real-Time Escrow & Donation -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- Left Column (7 cols) -->
+    <div class="lg:col-span-7 space-y-6">
+
+      <!-- Campaign Header & Title -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
+        
+        <!-- Status & Badge row -->
+        <div class="flex flex-wrap items-center gap-2">
+          {% if campaign.status.value == 'ACTIVE' %}
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+              <i class="fa-solid fa-shield-check text-emerald-600"></i> CareProof Verified
+            </span>
+          {% elif campaign.status.value == 'TARGET_REACHED' %}
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
+              <i class="fa-solid fa-lock text-amber-600"></i> Target Reached (Overfunding Locked)
+            </span>
+          {% else %}
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-300">
+              <i class="fa-solid fa-clock"></i> In Verification
+            </span>
+          {% endif %}
+
+          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+            <i class="fa-solid fa-building-columns text-slate-500"></i> Direct Escrow: {{ campaign.hospital_name }}
+          </span>
+
+          {% if campaign.verification %}
+          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <i class="fa-solid fa-chart-simple"></i> Gemini Trust Score: {{ campaign.verification.gemini_trust_score }}%
+          </span>
+          {% endif %}
+        </div>
+
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display leading-tight">
+          {{ campaign.title }}
+        </h1>
+
+        <!-- Patient Quick Info Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <span class="text-[10px] font-bold uppercase text-slate-400 block">Patient</span>
+            <span class="text-sm font-bold text-slate-900">{{ campaign.patient_name }}</span>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <span class="text-[10px] font-bold uppercase text-slate-400 block">Age</span>
+            <span class="text-sm font-bold text-slate-900">{{ campaign.patient_age }} Years Old</span>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <span class="text-[10px] font-bold uppercase text-slate-400 block">Surgeon</span>
+            <span class="text-sm font-bold text-slate-900 truncate block">{{ campaign.doctor_name }}</span>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <span class="text-[10px] font-bold uppercase text-slate-400 block">Hospital</span>
+            <span class="text-sm font-bold text-slate-900 truncate block">{{ campaign.hospital_name.split()[0] }}</span>
+          </div>
+        </div>
+
+        <!-- Banner Image -->
+        <div class="rounded-2xl overflow-hidden h-72 sm:h-96 w-full relative shadow-inner">
+          <img src="{{ campaign.banner_image_url }}" alt="{{ campaign.patient_name }}" class="w-full h-full object-cover">
+          <div class="absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur text-white px-3 py-1 rounded-lg text-xs font-medium">
+            Advocated by {{ campaign.creator_name }} ({{ campaign.creator_social_handle }})
+          </div>
+        </div>
+
+        <!-- Story Content -->
+        <div class="pt-4 space-y-3">
+          <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-book-medical text-emerald-600"></i> Clinical Situation & Patient Story
+          </h3>
+          <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+            {{ campaign.story }}
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Trust & Verification Section -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-base text-slate-900">Campaign Verification Audit Trail</h3>
+              <p class="text-xs text-slate-500">Cross-verified by Google Gemini AI & Human Medical Officer</p>
+            </div>
+          </div>
+          {% if campaign.verification and campaign.verification.verification_hash %}
+            <span class="font-mono text-[10px] font-bold px-2 py-1 bg-slate-100 text-slate-700 rounded border border-slate-300">
+              HASH: {{ campaign.verification.verification_hash[:14] }}...
+            </span>
+          {% endif %}
+        </div>
+
+        <!-- Gemini AI Audit Findings -->
+        {% if campaign.verification %}
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Audit Protocol Findings</h4>
+          <ul class="space-y-2">
+            {% for finding in campaign.verification.findings %}
+            <li class="flex items-start gap-2.5 text-xs text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              <i class="fa-solid fa-check text-emerald-500 mt-0.5"></i>
+              <span>{{ finding }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        <!-- Supporting Documents List -->
+        <div class="space-y-3 pt-2">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Verified Supporting Documents</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {% for doc in campaign.documents %}
+            <a href="{{ doc.url }}" target="_blank" class="p-3.5 rounded-xl border border-slate-200 hover:border-emerald-500 bg-slate-50/50 hover:bg-emerald-50/30 transition-all flex items-center justify-between group">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-file-pdf text-2xl text-rose-500"></i>
+                <div>
+                  <span class="text-xs font-bold text-slate-900 group-hover:text-emerald-700 block truncate max-w-[180px]">{{ doc.filename }}</span>
+                  <span class="text-[11px] text-slate-500 capitalize">{{ doc.doc_type.replace('_', ' ') }}</span>
+                </div>
+              </div>
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-400 group-hover:text-emerald-600"></i>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Escrow Settlement Guarantee -->
+        <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 p-4 rounded-2xl flex items-start gap-3">
+          <i class="fa-solid fa-handshake-angle text-2xl text-emerald-600 mt-1"></i>
+          <div class="space-y-1 text-xs text-emerald-950">
+            <h5 class="font-bold text-sm text-emerald-900">Zero Influencer Wallet Diversion</h5>
+            <p class="leading-relaxed">
+              Donations are held in a regulated healthcare escrow account and transferred directly to <strong>{{ campaign.hospital_name }}</strong>. Neither the social media creator nor CareProof AI retains discretionary control over patient funds.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Right Column: Real-Time Tracker, Overfunding Lock & Donation Simulator (5 cols) -->
+    <div class="lg:col-span-5 space-y-6 sticky top-24">
+      
+      <!-- Real-Time Tracker Card -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl space-y-6">
+        
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Live Fund Allocation</span>
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Real-Time Connected
+          </span>
+        </div>
+
+        <!-- Financial Metrics Display -->
+        <div class="space-y-3">
+          {% set pct = (campaign.amount_raised / campaign.target_amount * 100) if campaign.target_amount > 0 else 0 %}
+          {% set safe_pct = [pct, 100.0] | min %}
+          
+          <div class="flex items-baseline justify-between">
+            <div>
+              <span id="display-raised" class="text-3xl font-extrabold text-slate-900 font-display">${{ "{:,.0f}".format(campaign.amount_raised) }}</span>
+              <span class="text-xs font-semibold text-slate-500">USD</span>
+            </div>
+            <div class="text-right">
+              <span class="text-xs text-slate-400 block font-medium">Target Bill</span>
+              <span class="text-base font-bold text-slate-700 font-display">${{ "{:,.0f}".format(campaign.target_amount) }}</span>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+            <div id="progress-bar" class="h-full rounded-full transition-all duration-700 {% if safe_pct >= 100 %}bg-amber-500{% else %}bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500{% endif %}" style="width: {{ safe_pct }}%"></div>
+          </div>
+
+          <!-- Bottom status info -->
+          <div class="flex items-center justify-between text-xs pt-1">
+            <span id="display-pct" class="font-bold {% if safe_pct >= 100 %}text-amber-600{% else %}text-emerald-600{% endif %}">
+              {{ "{:.1f}".format(safe_pct) }}% Achieved
+            </span>
+            <span id="display-remaining" class="text-slate-600 font-medium">
+              {% if campaign.status.value == 'TARGET_REACHED' %}
+                <span class="text-amber-700 font-bold">🔒 Overfunding Lock Active</span>
+              {% else %}
+                ${{ "{:,.0f}".format(campaign.remaining_amount) }} needed to close bill
+              {% endif %}
+            </span>
+          </div>
+        </div>
+
+        <!-- Overfunding Lockout Banner (Hidden unless target reached) -->
+        <div id="overfunding-banner" class="{% if campaign.status.value != 'TARGET_REACHED' %}hidden{% endif %} bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 p-4 rounded-2xl text-xs space-y-2 text-amber-950">
+          <div class="flex items-center gap-2 font-bold text-amber-900 text-sm">
+            <i class="fa-solid fa-lock text-amber-600"></i> Target Reached — Overfunding Protection Active!
+          </div>
+          <p class="leading-relaxed">
+            New donations are currently disabled. This patient's verified hospital bill of ${{ "{:,.0f}".format(campaign.target_amount) }} is 100% funded! CareProof AI protects donors by prohibiting excess unchecked collection.
+          </p>
+          <div class="pt-1 text-[11px] font-semibold text-amber-800">
+            Disclosed Surplus Policy: 
+            {% if campaign.surplus_policy.value == 'HOSPITAL_EMERGENCY_POOL' %}
+              Any pending bank transfers will route to {{ campaign.hospital_name }} Emergency Pediatric Pool.
+            {% else %}
+              Any concurrent in-flight donations will be automatically refunded.
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Direct Escrow Routing Flow Diagram -->
+        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Funds Escrow Path</span>
+          <div class="flex items-center justify-between text-center gap-1 text-[11px] font-semibold">
+            <div class="flex-1 bg-white p-2 rounded-lg border border-slate-200">
+              <i class="fa-solid fa-credit-card text-emerald-600 block mb-1"></i>
+              Donor Card
+            </div>
+            <i class="fa-solid fa-arrow-right text-slate-400 text-xs"></i>
+            <div class="flex-1 bg-white p-2 rounded-lg border border-slate-200">
+              <i class="fa-solid fa-shield-halved text-indigo-600 block mb-1"></i>
+              CareProof Escrow
+            </div>
+            <i class="fa-solid fa-arrow-right text-slate-400 text-xs"></i>
+            <div class="flex-1 bg-emerald-100 p-2 rounded-lg border border-emerald-300 text-emerald-950">
+              <i class="fa-solid fa-hospital text-emerald-700 block mb-1"></i>
+              {{ campaign.hospital_name.split()[0] }} Escrow
+            </div>
+          </div>
+        </div>
+
+        <!-- Donation Interactive Section -->
+        <div id="donation-controls" class="space-y-4 {% if campaign.status.value == 'TARGET_REACHED' %}opacity-50 pointer-events-none{% endif %}">
+          <label class="text-xs font-bold text-slate-700 block">Choose Donation Amount (USD)</label>
+          
+          <div class="grid grid-cols-4 gap-2">
+            <button onclick="setAmount(25)" class="amt-btn py-2 text-xs font-bold rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 text-slate-700 transition-colors">$25</button>
+            <button onclick="setAmount(50)" class="amt-btn py-2 text-xs font-bold rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 text-slate-700 transition-colors">$50</button>
+            <button onclick="setAmount(250)" class="amt-btn py-2 text-xs font-bold rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 text-slate-700 transition-colors">$250</button>
+            <button onclick="setAmount({{ campaign.remaining_amount }})" class="amt-btn py-2 text-[10px] font-bold rounded-xl border border-emerald-500 bg-emerald-50 text-emerald-800 transition-colors truncate">Fulfill Bill</button>
+          </div>
+
+          <!-- Custom Input -->
+          <div class="relative">
+            <span class="absolute left-3 top-2.5 text-slate-400 font-bold text-sm">$</span>
+            <input type="number" id="custom-amount" value="50" min="1" step="1" class="w-full pl-8 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm font-bold text-slate-900">
+          </div>
+
+          <!-- Donor Name & Email -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <input type="text" id="donor-name" placeholder="Your Name" value="Kind Donor" class="px-3 py-2 rounded-xl border border-slate-300 text-xs">
+            <input type="email" id="donor-email" placeholder="Your Email" value="donor@example.com" class="px-3 py-2 rounded-xl border border-slate-300 text-xs">
+          </div>
+
+          <!-- Action Buttons -->
+          <button id="btn-donate" onclick="submitDonation()" class="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2">
+            <i class="fa-solid fa-lock text-xs"></i> Donate Directly to {{ campaign.hospital_name.split()[0] }} Escrow
+          </button>
+
+          <!-- Hackathon Demo Special Button -->
+          <div class="pt-2 border-t border-slate-100">
+            <button onclick="testOverfundingProtection()" class="w-full py-2.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold transition-all flex items-center justify-center gap-2">
+              <i class="fa-solid fa-bolt text-amber-600"></i> Test Overfunding Protection (Trigger Cap)
+            </button>
+            <p class="text-[10px] text-slate-400 text-center mt-1">Donates exact remaining amount + $500 to test automated cap & surplus policy</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Recent Confirmed Settlements -->
+      <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center justify-between">
+          <span>Recent Verified Transactions</span>
+          <span class="text-emerald-600 font-semibold text-[11px]">Direct Hospital Ledger</span>
+        </h4>
+
+        <div id="donations-list" class="space-y-2.5 max-h-60 overflow-y-auto">
+          {% for donation in donations %}
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs">
+            <div>
+              <span class="font-bold text-slate-900 block">{{ donation.donor_name }}</span>
+              <span class="text-[10px] text-slate-400 font-mono">{{ donation.receipt_hash }}</span>
+            </div>
+            <div class="text-right">
+              <span class="font-extrabold text-emerald-700 block">+${{ "{:,.2f}".format(donation.amount) }}</span>
+              <span class="text-[10px] text-slate-500">Settled to Hospital</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  const campaignId = "{{ campaign.id }}";
+  let targetAmount = {{ campaign.target_amount }};
+  let amountRaised = {{ campaign.amount_raised }};
+  let remainingAmount = {{ campaign.remaining_amount }};
+
+  function setAmount(amt) {
+    document.getElementById('custom-amount').value = Math.max(1, Math.round(amt));
+  }
+
+  async function submitDonation(customAmt = null) {
+    const amt = customAmt || parseFloat(document.getElementById('custom-amount').value);
+    const donorName = document.getElementById('donor-name').value || "Kind Supporter";
+    const donorEmail = document.getElementById('donor-email').value || "donor@example.com";
+
+    if (!amt || amt <= 0) {
+      showToast("Please enter a valid donation amount", "warning");
+      return;
+    }
+
+    const btn = document.getElementById('btn-donate');
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Routing to Hospital Escrow...`;
+
+    try {
+      const response = await fetch('/api/donations/simulate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          campaign_id: campaignId,
+          amount: amt,
+          donor_name: donorName,
+          donor_email: donorEmail,
+          currency: "USD",
+          payment_provider: "Stripe"
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === 'confirmed') {
+        showToast(data.message, "success");
+        
+        // Update local state
+        amountRaised = data.amount_raised;
+        remainingAmount = data.remaining_amount;
+        updateUI(data.campaign_status);
+        addDonationToList(donorName, amt, data.receipt_hash);
+      } else {
+        showToast(data.detail || data.message || "Donation failed", "error");
+      }
+    } catch (e) {
+      showToast("Network error while routing payment", "error");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `<i class="fa-solid fa-lock text-xs"></i> Donate Directly to Escrow`;
+    }
+  }
+
+  function testOverfundingProtection() {
+    const overflowAmount = remainingAmount + 500;
+    submitDonation(overflowAmount);
+  }
+
+  function updateUI(status) {
+    document.getElementById('display-raised').innerText = `$${Math.round(amountRaised).toLocaleString()}`;
+    const pct = Math.min(100, (amountRaised / targetAmount * 100));
+    document.getElementById('display-pct').innerText = `${pct.toFixed(1)}% Achieved`;
+    document.getElementById('progress-bar').style.width = `${pct}%`;
+
+    if (status === 'TARGET_REACHED' || amountRaised >= targetAmount) {
+      document.getElementById('display-remaining').innerHTML = `<span class="text-amber-700 font-bold">🔒 Overfunding Lock Active</span>`;
+      document.getElementById('overfunding-banner').classList.remove('hidden');
+      document.getElementById('donation-controls').classList.add('opacity-50', 'pointer-events-none');
+      document.getElementById('progress-bar').classList.remove('bg-gradient-to-r', 'from-emerald-500', 'via-teal-500', 'to-cyan-500');
+      document.getElementById('progress-bar').classList.add('bg-amber-500');
+    } else {
+      document.getElementById('display-remaining').innerText = `$${Math.round(remainingAmount).toLocaleString()} needed to close bill`;
+    }
+  }
+
+  function addDonationToList(name, amt, hash) {
+    const list = document.getElementById('donations-list');
+    const item = document.createElement('div');
+    item.className = 'p-2.5 rounded-xl bg-emerald-50/50 border border-emerald-200 flex items-center justify-between text-xs animate-pulse';
+    item.innerHTML = `
+      <div>
+        <span class="font-bold text-slate-900 block">${name}</span>
+        <span class="text-[10px] text-slate-400 font-mono">${hash || 'CP-REC-NEW'}</span>
+      </div>
+      <div class="text-right">
+        <span class="font-extrabold text-emerald-700 block">+$${amt.toLocaleString()}</span>
+        <span class="text-[10px] text-slate-500">Settled to Hospital</span>
+      </div>
+    `;
+    list.prepend(item);
+  }
+</script>
+{% endblock %}
