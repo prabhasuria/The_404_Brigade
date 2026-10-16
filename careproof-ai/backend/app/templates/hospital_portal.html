@@ -122,15 +122,7 @@
     {% endfor %}
   };
 
-  const sampleSettlements = [
-    { hash: "CP-REC-482019482A", patient: "Rohan Verma (Heart Surgery)", donor: "David Chen", amount: "$2,500.00", route: "HDFC Escrow #984210", status: "DIRECT_CREDITED" },
-    { hash: "CP-REC-948102941B", patient: "Rohan Verma (Heart Surgery)", donor: "Priya Patel", amount: "$500.00", route: "HDFC Escrow #984210", status: "DIRECT_CREDITED" },
-    { hash: "CP-REC-119283748C", patient: "Ananya Roy (Leukemia Chemotherapy)", donor: "Global Wellness Fund", amount: "$5,000.00", route: "SBI Escrow #774011", status: "DIRECT_CREDITED" },
-    { hash: "CP-REC-773829104D", patient: "Ananya Roy (Leukemia Chemotherapy)", donor: "Arun Mehra", amount: "$1,200.00", route: "SBI Escrow #774011", status: "DIRECT_CREDITED" },
-    { hash: "CP-REC-338291042E", patient: "Rohan Verma (Heart Surgery)", donor: "Elena Rostova", amount: "$150.00", route: "HDFC Escrow #984210", status: "DIRECT_CREDITED" }
-  ];
-
-  function onHospitalChange() {
+  async function onHospitalChange() {
     const hospId = document.getElementById('select-hospital').value;
     const hosp = hospitalsData[hospId];
     if (hosp) {
@@ -139,18 +131,39 @@
       document.getElementById('hosp-bank').innerText = hosp.bank_name;
       document.getElementById('hosp-escrow-id').innerText = hosp.escrow_account_id;
     }
+
+    try {
+      const res = await fetch(`/api/hospitals/${hospId}/escrow-ledger`);
+      if (res.ok) {
+        const data = await res.json();
+        document.getElementById('hosp-total-settled').innerText = `$${(data.total_settled_amount || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+        renderSettlements(data.settlements || []);
+      }
+    } catch (e) {
+      console.error("Failed to load hospital escrow ledger:", e);
+    }
   }
 
-  function renderSettlements() {
+  function renderSettlements(settlementsList) {
     const tbody = document.getElementById('settlements-table-body');
     tbody.innerHTML = '';
-    sampleSettlements.forEach(s => {
+    
+    if (!settlementsList || settlementsList.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="py-6 text-center text-slate-400 italic">No direct settlements recorded yet for this hospital.</td>
+        </tr>
+      `;
+      return;
+    }
+
+    settlementsList.forEach(s => {
       const tr = document.createElement('tr');
       tr.className = 'hover:bg-slate-50/80 transition-colors';
       tr.innerHTML = `
-        <td class="py-3 px-4 font-mono font-bold text-slate-900">${s.hash}</td>
-        <td class="py-3 px-4 font-semibold text-slate-900">${s.patient}</td>
-        <td class="py-3 px-4">${s.donor}</td>
+        <td class="py-3 px-4 font-mono font-bold text-slate-900">${s.receipt_hash}</td>
+        <td class="py-3 px-4 font-semibold text-slate-900">${s.patient_name}</td>
+        <td class="py-3 px-4">${s.donor_name}</td>
         <td class="py-3 px-4 font-bold text-emerald-700">${s.amount}</td>
         <td class="py-3 px-4 font-mono text-[11px] text-slate-500">${s.route}</td>
         <td class="py-3 px-4">
@@ -165,7 +178,6 @@
 
   window.onload = () => {
     onHospitalChange();
-    renderSettlements();
   };
 </script>
 {% endblock %}

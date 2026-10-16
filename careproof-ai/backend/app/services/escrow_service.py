@@ -49,9 +49,26 @@ class EscrowService:
         if not hospital:
             return {"error": "Hospital not found"}
 
-        # Get all campaigns for this hospital
+        # Get all campaigns and donations for this hospital
         campaigns = [c for c in db.get_campaigns() if c.hospital_id == hospital_id]
         total_settled = sum(c.amount_raised for c in campaigns)
+
+        settlements = []
+        for c in campaigns:
+            dons = db.get_donations_for_campaign(c.id)
+            for d in dons:
+                settlements.append({
+                    "receipt_hash": d.receipt_hash,
+                    "patient_name": f"{c.patient_name} ({c.diagnosis[:28]}...)" if len(c.diagnosis) > 28 else f"{c.patient_name} ({c.diagnosis})",
+                    "donor_name": d.donor_name,
+                    "amount": f"${d.amount:,.2f}",
+                    "route": f"{hospital.bank_name} #{hospital.escrow_account_id}",
+                    "created_at": d.created_at,
+                    "status": "DIRECT_CREDITED"
+                })
+
+        # Sort newest first
+        settlements.reverse()
         
         return {
             "hospital_name": hospital.name,
@@ -61,7 +78,8 @@ class EscrowService:
             "verified_status": "ACTIVE_ESCROW_CONNECTED",
             "total_settled_amount": total_settled,
             "active_patients_count": len(campaigns),
-            "settlement_frequency": "Instantaneous Direct Deposit via Automated Clearing House (ACH/RTGS)"
+            "settlement_frequency": "Instantaneous Direct Deposit via Automated Clearing House (ACH/RTGS)",
+            "settlements": settlements
         }
 
 escrow_service = EscrowService()

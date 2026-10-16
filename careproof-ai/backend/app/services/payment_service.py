@@ -84,6 +84,12 @@ class PaymentProviderService:
             "campaign_status": campaign.status.value,
             "amount_raised": campaign.amount_raised,
             "remaining_amount": campaign.remaining_amount,
+            "original_amount": donation.original_amount,
+            "applied_to_patient": donation.applied_to_patient,
+            "surplus_amount": donation.surplus_amount,
+            "refund_amount": donation.refund_amount,
+            "refund_transaction_id": donation.refund_transaction_id,
+            "surplus_destination": donation.surplus_destination,
             "message": message
         }
 

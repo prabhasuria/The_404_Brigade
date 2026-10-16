@@ -24,6 +24,9 @@ def simulate_donation(req: DonationRequest):
     Routes funds directly to hospital escrow, invokes overfunding check,
     and updates campaign real-time ledger.
     """
+    if req.amount <= 0:
+        raise HTTPException(status_code=400, detail="Donation amount must be strictly greater than zero.")
+
     result = payment_service.process_confirmed_payment_webhook(
         campaign_id=req.campaign_id,
         amount=req.amount,

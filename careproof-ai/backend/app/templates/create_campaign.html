@@ -87,6 +87,22 @@
             </select>
           </div>
         </div>
+
+        <!-- File Upload & Live Discrepancy Alert -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Attach Hospital Estimate / Bill (PDF or Image)</label>
+            <input type="file" name="estimate_doc" id="estimate_doc" accept=".pdf,.png,.jpg,.jpeg" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+            <span class="text-[10px] text-slate-400 mt-1 block">Uploaded document is verified by Gemini AI against hospital registry</span>
+          </div>
+
+          <div id="discrepancy-warning" class="hidden p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-[11px] space-y-1">
+            <strong class="font-bold flex items-center gap-1 text-amber-800">
+              <i class="fa-solid fa-triangle-exclamation"></i> Discrepancy Warning
+            </strong>
+            <p id="discrepancy-warning-text"></p>
+          </div>
+        </div>
       </div>
 
       <!-- Section 3: Social Campaign Story & Creator Handle -->
@@ -140,6 +156,25 @@
 </div>
 
 <script>
+  function checkDiscrepancy() {
+    const target = parseFloat(document.getElementById('target_amount').value) || 0;
+    const quote = parseFloat(document.getElementById('doc_amount_estimate').value) || 0;
+    const warn = document.getElementById('discrepancy-warning');
+    const warnText = document.getElementById('discrepancy-warning-text');
+
+    if (quote > 0 && target > quote * 1.15) {
+      const diff = target - quote;
+      const pct = Math.round((diff / quote) * 100);
+      warnText.innerText = `Target ($${target.toLocaleString()}) exceeds the hospital estimate ($${quote.toLocaleString()}) by $${diff.toLocaleString()} (+${pct}%). Gemini Copilot will flag this inconsistency for manual medical review.`;
+      warn.classList.remove('hidden');
+    } else {
+      warn.classList.add('hidden');
+    }
+  }
+
+  document.getElementById('target_amount').addEventListener('input', checkDiscrepancy);
+  document.getElementById('doc_amount_estimate').addEventListener('input', checkDiscrepancy);
+
   async function submitNewCampaign(e) {
     e.preventDefault();
     const btn = document.getElementById('btn-submit');

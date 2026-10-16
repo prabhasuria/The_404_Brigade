@@ -102,7 +102,13 @@ class Donation(BaseModel):
     campaign_id: str
     donor_name: str
     donor_email: str
-    amount: float
+    amount: float  # Principal amount applied or settled
+    original_amount: float = 0.0  # Total charged to donor
+    applied_to_patient: float = 0.0
+    surplus_amount: float = 0.0
+    refund_amount: float = 0.0
+    refund_transaction_id: Optional[str] = None
+    surplus_destination: Optional[str] = None
     currency: str = "USD"
     status: DonationStatus = DonationStatus.CONFIRMED
     hospital_settlement_id: str = Field(default_factory=lambda: f"hset_{uuid.uuid4().hex[:8]}")
@@ -117,7 +123,7 @@ class DonationRequest(BaseModel):
     campaign_id: str
     donor_name: str = "Kind Supporter"
     donor_email: str = "donor@example.com"
-    amount: float
+    amount: float = Field(..., gt=0, le=1000000, description="Donation amount in USD must be strictly greater than 0")
     currency: str = "USD"
     is_anonymous: bool = False
     payment_provider: str = "Stripe"

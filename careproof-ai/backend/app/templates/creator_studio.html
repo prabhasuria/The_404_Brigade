@@ -414,12 +414,41 @@
     showToast("Caption copied to clipboard!", "success");
   }
 
+  const campaignsMap = {
+    {% for c in campaigns %}
+      "{{ c.id }}": {
+        id: "{{ c.id }}",
+        title: "{{ c.title | replace('"', '\\"') }}",
+        patient: "{{ c.patient_name }}",
+        hospital: "{{ c.hospital_name }}",
+        creator: "{{ c.creator_social_handle }}",
+        banner: "{{ c.banner_image_url }}"
+      },
+    {% endfor %}
+  };
+
+  function updatePhoneDisplay(cmpId) {
+    const cmp = campaignsMap[cmpId];
+    if (cmp) {
+      const hospEl = document.getElementById('phone-hospital');
+      if (hospEl) hospEl.innerText = cmp.hospital;
+      const creatorEl = document.getElementById('phone-creator');
+      if (creatorEl) creatorEl.innerText = cmp.creator;
+      const bgEl = document.getElementById('phone-bg');
+      if (bgEl && cmp.banner) bgEl.src = cmp.banner;
+    }
+  }
+
   function onCampaignChange() {
+    const cmpId = document.getElementById('select-campaign').value;
+    updatePhoneDisplay(cmpId);
     generateReel();
   }
 
   // Load first reel on startup
   window.onload = () => {
+    const initialCmpId = document.getElementById('select-campaign').value;
+    updatePhoneDisplay(initialCmpId);
     generateReel();
   };
 </script>
