@@ -299,6 +299,96 @@ class DatabaseService:
         )
         self._campaigns[cmp3.id] = cmp3
 
+        # Campaign 4: Baby Elroy - SMA Type 1 (Real-world viral reel transformed with CareProof Escrow)
+        cmp4_id = "cmp_elroy_sma"
+        audit4 = VerificationAudit(
+            id="audit_elroy_04",
+            campaign_id=cmp4_id,
+            gemini_trust_score=94,
+            ai_status="RECOMMENDED",
+            human_status="APPROVED",
+            findings=[
+                "Genetic diagnosis verified: 5q SMA Type 1 (Homozygous deletion of SMN1 exon 7).",
+                "Hospital estimate from Apollo Pediatric Genetics: $2,100,000 for Onasemnogene Abeparvovec (Zolgensma) import and PICU admission.",
+                "PREVENTED MISUSE: Creator's viral reel featured personal UPI (limsontt1@fbl). CareProof successfully migrated routing to Apollo Special Medical Escrow (careproof.apollo.elroy@hdfcbank).",
+                "Multi-Rail Consolidation: Domestic UPI + Global Card donations unified into a single transparent ledger.",
+                "Overfunding Protection armed: Hard target lock engaged to prevent viral runaway collections."
+            ],
+            discrepancy_detected=False,
+            hospital_verified=True,
+            beneficiary_verified=True,
+            reviewer_notes="Migrated from viral Instagram story (@abbii.krish #SaveElroy). Replaced personal UPI with Apollo Escrow.",
+            verified_by="Dr. Sarah M. (Google H2S Trust Officer)",
+            verification_hash=hashlib.sha256(f"VERIFIED-{cmp4_id}-APOLLO-SMA".encode()).hexdigest()[:24]
+        )
+        self._audits[audit4.id] = audit4
+
+        cmp4 = Campaign(
+            id=cmp4_id,
+            title="Help Baby Elroy Fight SMA Type 1: Urgent Gene Therapy Protocol",
+            story="Baby Elroy was diagnosed with Spinal Muscular Atrophy (SMA Type 1), a progressive motor neuron condition that impairs breathing and swallowing. He is currently on oxygen support. Originally viral across Instagram (#SaveElroy, 94.5K shares), this campaign was migrated to CareProof AI to replace personal UPI handles with a regulated hospital escrow bank account. 100% of proceeds route to Apollo Hospitals Bannerghatta Medical Escrow.",
+            patient_name="Baby Elroy",
+            patient_age=1,
+            diagnosis="Spinal Muscular Atrophy Type 1 (SMA Type 1) with Respiratory Failure",
+            doctor_name="Dr. V. Soundararajan (Pediatric Neurologist)",
+            hospital_id=hosp1.id,
+            hospital_name=hosp1.name,
+            target_amount=2100000.0,
+            amount_raised=1780000.0,
+            remaining_amount=320000.0,
+            currency="USD",
+            status=CampaignStatus.ACTIVE,
+            surplus_policy=SurplusPolicyType.HOSPITAL_EMERGENCY_POOL,
+            documents=[
+                SupportingDocument(
+                    doc_type="hospital_estimate",
+                    filename="sample_viral_reel_elroy.jpg",
+                    url="/static/sample_docs/sample_viral_reel_elroy.jpg",
+                    extracted_amount=2100000.0,
+                    extracted_hospital="Apollo Hospitals Pediatric Genetics",
+                    extracted_diagnosis="SMA Type 1 Gene Therapy",
+                    extracted_doctor="Dr. V. Soundararajan"
+                )
+            ],
+            verification=audit4,
+            creator_name="Abhishek & Krishnan",
+            creator_social_handle="@abbii.krish",
+            creator_social_platform="Instagram",
+            social_campaign_url="https://instagram.com/reel/save_elroy",
+            banner_image_url="/static/sample_docs/sample_viral_reel_elroy.jpg"
+        )
+        cmp4.update_financials()
+        self._campaigns[cmp4.id] = cmp4
+
+        # Seed initial donations for Baby Elroy (Domestic UPI + Global)
+        don_elroy_1 = Donation(
+            campaign_id=cmp4.id,
+            donor_name="Global SMA Hope Foundation",
+            donor_email="grants@smahope.org",
+            amount=500000.0,
+            original_amount=500000.0,
+            applied_to_patient=500000.0,
+            currency="USD",
+            status=DonationStatus.CONFIRMED,
+            hospital_settlement_id=f"SETTLE-{hosp1.escrow_account_id}-ELROY-01",
+            receipt_hash=hashlib.sha256(f"{cmp4.id}-global-500k".encode()).hexdigest()[:16]
+        )
+        don_elroy_2 = Donation(
+            campaign_id=cmp4.id,
+            donor_name="Kavita Ramachandran (UPI Scanner)",
+            donor_email="kavita.r@gmail.com",
+            amount=1500.0,
+            original_amount=1500.0,
+            applied_to_patient=1500.0,
+            currency="USD",
+            status=DonationStatus.CONFIRMED,
+            hospital_settlement_id=f"SETTLE-{hosp1.escrow_account_id}-ELROY-02",
+            payment_provider="UPI_Hospital_Escrow",
+            receipt_hash=hashlib.sha256(f"{cmp4.id}-kavita-upi".encode()).hexdigest()[:16]
+        )
+        self._donations[don_elroy_1.id] = don_elroy_1
+        self._donations[don_elroy_2.id] = don_elroy_2
+
     def save_all(self):
         data = {
             "hospitals": [h.dict() for h in self._hospitals.values()],

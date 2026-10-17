@@ -67,6 +67,9 @@
     <button onclick="switchTab('auditor')" id="tab-btn-auditor" class="tab-btn px-4 py-2 rounded-xl hover:bg-slate-200 text-slate-700 flex items-center gap-2">
       <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> Post Discrepancy Auditor
     </button>
+    <button onclick="switchTab('scanner')" id="tab-btn-scanner" class="tab-btn px-4 py-2 rounded-xl hover:bg-slate-200 text-slate-700 flex items-center gap-2">
+      <i class="fa-solid fa-camera-retro text-rose-500"></i> Viral Story Scanner (Gemini Vision)
+    </button>
     <button onclick="switchTab('accessible')" id="tab-btn-accessible" class="tab-btn px-4 py-2 rounded-xl hover:bg-slate-200 text-slate-700 flex items-center gap-2">
       <i class="fa-solid fa-universal-access text-indigo-500"></i> Accessible Story
     </button>
@@ -222,6 +225,126 @@
     </div>
   </div>
 
+  <!-- Tab 5: Viral Story Reel Scanner & Forensics Diagnostic (Gemini Vision) -->
+  <div id="tab-scanner" class="tab-content hidden space-y-6">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
+            <i class="fa-solid fa-camera"></i> Gemini 2.0 Multimodal Vision
+          </span>
+          <h3 class="font-bold text-xl text-slate-900 mt-1 font-display">Viral Social Story & Reel Scanner</h3>
+          <p class="text-xs text-slate-500">Upload or test any Instagram Story / TikTok fundraising flyer to audit personal UPI diversion and lack of hospital accountability.</p>
+        </div>
+
+        <button onclick="scanStoryImage(true)" id="btn-load-sample-story" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-bold text-xs shadow-md shadow-rose-600/20 transition-all flex items-center gap-2 cursor-pointer">
+          <i class="fa-brands fa-instagram text-sm"></i> Load Viral Reel Sample (#SaveElroy - 94.5K Shares)
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left: Upload or Preview Image (5 cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="border-2 border-dashed border-slate-300 rounded-3xl p-4 text-center bg-slate-50/50 hover:bg-slate-50 transition-colors">
+            <input type="file" id="scanner-file-input" accept="image/*" onchange="onScannerFileSelected(event)" class="hidden">
+            <div id="scanner-preview-container" class="cursor-pointer" onclick="document.getElementById('scanner-file-input').click()">
+              <img id="scanner-img-preview" src="/static/sample_docs/sample_viral_reel_elroy.jpg" alt="Viral Reel Flyer" class="rounded-2xl max-h-[480px] mx-auto shadow-md object-contain border border-slate-200">
+              <span class="text-[11px] text-slate-400 mt-2 block font-medium">Click to upload custom screenshot or use sample</span>
+            </div>
+          </div>
+
+          <button onclick="scanStoryImage(false)" id="btn-scan-uploaded" class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-rose-600 text-white font-bold text-xs shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-magnifying-glass-chart"></i> Run Gemini Forensics Audit
+          </button>
+        </div>
+
+        <!-- Right: Forensic Audit Diagnostic Report (7 cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          <div id="scanner-result" class="space-y-4">
+            
+            <!-- Default Diagnostic for Sample Flyer (#SaveElroy) -->
+            <div class="p-5 rounded-2xl bg-rose-50 border-2 border-rose-300 text-rose-950 space-y-4">
+              
+              <div class="flex items-center justify-between border-b border-rose-200 pb-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-shield-virus"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-sm text-rose-900">Forensics Risk: CRITICAL FRAUD VULNERABILITY</h4>
+                    <p class="text-[11px] text-rose-700">Audit of Instagram Reel @abbii.krish (#SaveElroy • 94.5K Shares)</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] uppercase font-bold text-rose-500 block">Trust Score</span>
+                  <span class="text-2xl font-extrabold text-rose-600 font-display">35/100</span>
+                </div>
+              </div>
+
+              <!-- Key Detected Vulnerabilities -->
+              <div class="space-y-2 text-xs">
+                <strong class="text-rose-900 block font-bold uppercase tracking-wider text-[11px]">Identified Vulnerabilities:</strong>
+                
+                <div class="bg-white/80 p-3 rounded-xl border border-rose-200 space-y-1">
+                  <span class="font-bold text-rose-900 flex items-center gap-1.5">
+                    <i class="fa-solid fa-triangle-exclamation text-rose-600"></i> Personal Bank Wallet Detected
+                  </span>
+                  <p class="text-slate-700 text-[11px] leading-relaxed">
+                    Graphic directs domestic Indian donors to UPI ID <code class="font-bold bg-rose-100 text-rose-900 px-1 py-0.5 rounded">limsontt1@fbl</code> (Federal Bank individual savings account). Money enters an unmonitored private account with <strong>0% hospital oversight</strong>.
+                  </p>
+                </div>
+
+                <div class="bg-white/80 p-3 rounded-xl border border-rose-200 space-y-1">
+                  <span class="font-bold text-rose-900 flex items-center gap-1.5">
+                    <i class="fa-solid fa-network-wired text-rose-600"></i> Dual-Rail Fragmentation
+                  </span>
+                  <p class="text-slate-700 text-[11px] leading-relaxed">
+                    Graphic solicits unrecorded UPI for India + GoFundMe for international donors without a consolidated real-time ledger. Donors cannot verify how much total money was actually raised across both channels.
+                  </p>
+                </div>
+
+                <div class="bg-white/80 p-3 rounded-xl border border-rose-200 space-y-1">
+                  <span class="font-bold text-rose-900 flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-invoice text-rose-600"></i> Missing Hospital & Target Amount
+                  </span>
+                  <p class="text-slate-700 text-[11px] leading-relaxed">
+                    Flyer cites SMA Type 1 (Zolgensma gene therapy costs ~₹16–17 Cr), but lists <strong>no target financial amount</strong>, no hospital name, and no treating neurologist credentials.
+                  </p>
+                </div>
+
+                <div class="bg-white/80 p-3 rounded-xl border border-rose-200 space-y-1">
+                  <span class="font-bold text-rose-900 flex items-center gap-1.5">
+                    <i class="fa-solid fa-infinity text-rose-600"></i> Unlimited Runaway Overfunding Risk
+                  </span>
+                  <p class="text-slate-700 text-[11px] leading-relaxed">
+                    Over <strong>94,500 people</strong> shared this graphic. Static UPI QR codes continue collecting funds indefinitely even after treatment is covered.
+                  </p>
+                </div>
+              </div>
+
+              <!-- CareProof Solution Transformation -->
+              <div class="pt-2 border-t border-rose-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="text-[11px] text-emerald-800 font-semibold flex items-center gap-1.5">
+                  <i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
+                  <span>CareProof AI can transform this campaign into a 100% verified hospital escrow</span>
+                </div>
+                <a href="/campaign/cmp_elroy_sma" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/25 flex items-center justify-center gap-1.5">
+                  <i class="fa-solid fa-arrow-right"></i> View Transformed Campaign
+                </a>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -234,6 +357,104 @@
 
     if (tab === 'captions') generateCaptions();
     if (tab === 'accessible') generateAccessibleStory();
+  }
+
+  function onScannerFileSelected(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('scanner-img-preview').src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  async function scanStoryImage(useSample = false) {
+    const btn = useSample ? document.getElementById('btn-load-sample-story') : document.getElementById('btn-scan-uploaded');
+    btn.disabled = true;
+    const oldText = btn.innerHTML;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Gemini Vision Analyzing...`;
+
+    try {
+      const formData = new FormData();
+      formData.append('use_sample', useSample ? 'true' : 'false');
+      
+      const fileInput = document.getElementById('scanner-file-input');
+      if (!useSample && fileInput.files[0]) {
+        formData.append('story_image', fileInput.files[0]);
+      }
+
+      const res = await fetch('/api/ai/scan-social-story', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        showToast("Gemini Vision Forensics audit completed!", "success");
+        renderScannerResult(data);
+      } else {
+        showToast(data.detail || "Scan failed", "error");
+      }
+    } catch (e) {
+      showToast("Error scanning image with Gemini", "error");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = oldText;
+    }
+  }
+
+  function renderScannerResult(data) {
+    const container = document.getElementById('scanner-result');
+    container.innerHTML = `
+      <div class="p-5 rounded-2xl bg-rose-50 border-2 border-rose-300 text-rose-950 space-y-4 animate-in fade-in duration-300">
+        
+        <div class="flex items-center justify-between border-b border-rose-200 pb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold">
+              <i class="fa-solid fa-shield-virus"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-sm text-rose-900">Forensics Risk: ${data.risk_level.replace(/_/g, ' ')}</h4>
+              <p class="text-[11px] text-rose-700">Patient: ${data.patient_name} • ${data.medical_condition}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] uppercase font-bold text-rose-500 block">Trust Score</span>
+            <span class="text-2xl font-extrabold text-rose-600 font-display">${data.trust_score}/100</span>
+          </div>
+        </div>
+
+        <div class="space-y-2 text-xs">
+          <strong class="text-rose-900 block font-bold uppercase tracking-wider text-[11px]">Identified Vulnerabilities:</strong>
+          ${(data.critical_red_flags || []).map(f => `
+            <div class="bg-white/80 p-3 rounded-xl border border-rose-200 text-slate-800 text-[11px] leading-relaxed flex items-start gap-2">
+              <i class="fa-solid fa-triangle-exclamation text-rose-600 mt-0.5"></i>
+              <span>${f}</span>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="space-y-2 text-xs pt-2 border-t border-rose-200">
+          <strong class="text-emerald-900 block font-bold uppercase tracking-wider text-[11px]">CareProof Transformation Recommendations:</strong>
+          ${(data.careproof_solution_recommendations || []).map(r => `
+            <div class="bg-emerald-50/80 p-2.5 rounded-xl border border-emerald-200 text-emerald-950 text-[11px] flex items-start gap-2">
+              <i class="fa-solid fa-check text-emerald-600 mt-0.5"></i>
+              <span>${r}</span>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="pt-3 border-t border-rose-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <span class="text-[11px] text-slate-600 font-semibold">Transform this campaign with zero creator diversion:</span>
+          <a href="/campaign/${data.careproof_campaign_id || 'cmp_elroy_sma'}" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/25 flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-arrow-right"></i> View Transformed Campaign
+          </a>
+        </div>
+
+      </div>
+    `;
   }
 
   async function generateReel() {
