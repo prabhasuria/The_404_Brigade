@@ -98,6 +98,22 @@ def create_word_document():
     
     doc.add_paragraph().paragraph_format.space_after = Pt(14)
     
+    def add_hyperlink(paragraph, url, text, color="0D9488", underline=True):
+        part = paragraph.part
+        r_id = part.relate_to(url, docx.opc.constants.RELATIONSHIP_TYPE.HYPERLINK, is_external=True)
+        hyperlink = parse_xml(f'<w:hyperlink {nsdecls("w")} r:id="{r_id}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>')
+        new_run = parse_xml(f'<w:r {nsdecls("w")}><w:rPr/></w:r>')
+        rPr = new_run.get_or_add_rPr()
+        if color:
+            rPr.append(parse_xml(f'<w:color {nsdecls("w")} w:val="{color}"/>'))
+        if underline:
+            rPr.append(parse_xml(f'<w:u {nsdecls("w")} w:val="single"/>'))
+        rPr.append(parse_xml(f'<w:b {nsdecls("w")}/>'))
+        new_run.append(parse_xml(f'<w:t {nsdecls("w")}>{text}</w:t>'))
+        hyperlink.append(new_run)
+        paragraph._p.append(hyperlink)
+        return hyperlink
+
     def add_h1(text):
         p = doc.add_paragraph()
         p.paragraph_format.space_before = Pt(18)
@@ -119,6 +135,70 @@ def create_word_document():
         r.font.bold = True
         r.font.color.rgb = RGBColor(13, 148, 136)
         return p
+
+    # Direct Links to Key Demo Pages Section
+    add_h1("Direct Interactive Links to Key Demo Pages")
+    doc.add_paragraph(
+        "The CareProof AI prototype is deployed live on a public HTTPS endpoint and accessible from any desktop or mobile browser. "
+        "Judges and evaluators can directly access each key feature using the interactive links below:"
+    )
+
+    links_table = doc.add_table(rows=1, cols=3)
+    links_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    lhdr = links_table.rows[0].cells
+    lhdr[0].width = Inches(2.1)
+    lhdr[1].width = Inches(2.2)
+    lhdr[2].width = Inches(2.4)
+    
+    for i, h_text in enumerate(["Page Name & Feature", "Direct Clickable Link", "What to Test & Audit"]):
+        set_cell_background(lhdr[i], "0D9488")
+        set_cell_margins(lhdr[i], top=120, bottom=120, left=120, right=120)
+        p = lhdr[i].paragraphs[0]
+        r = p.add_run(h_text)
+        r.bold = True
+        r.font.size = Pt(10)
+        r.font.color.rgb = RGBColor(255, 255, 255)
+
+    key_links = [
+        ("🏠 Live Discovery Grid", "https://integrate-europe-compilation-planets.trycloudflare.com/", "Open Live Discovery Grid", "4 live campaigns showing Active, Target Reached, Discrepancy Flag, and Baby Elroy SMA."),
+        ("⚡ Rohan Verma Live Escrow", "https://integrate-europe-compilation-planets.trycloudflare.com/campaign/cmp_rohan_heart", "Open Rohan's Campaign", "Direct Apollo Escrow (#ESCROW-APOLLO). Click 'Test Overfunding Protection' to see 100% cap & pool routing."),
+        ("🎬 Gemini Creator Studio", "https://integrate-europe-compilation-planets.trycloudflare.com/creator-studio", "Open Creator Studio", "Generate multilingual 9:16 vertical Reel scripts in Hindi, Spanish, or Tamil with smartphone mockup."),
+        ("🔍 Viral Story Scanner (Tab 5)", "https://integrate-europe-compilation-planets.trycloudflare.com/creator-studio?tab=scanner", "Open Flyer Scanner (Tab 5)", "Upload Instagram flyer to see Gemini Vision detect personal UPI (limsontt1@fbl) & convert to escrow."),
+        ("🩺 Verifier Copilot (HITL)", "https://integrate-europe-compilation-planets.trycloudflare.com/verifier", "Open Verifier Dashboard", "Audit Vikram Singh's +89.2% invoice discrepancy ($35k vs $18.5k quote) and sign SHA-256 certificate."),
+        ("🏥 Hospital Escrow Portal", "https://integrate-europe-compilation-planets.trycloudflare.com/hospital-escrow", "Open Hospital Ledger", "Apollo inward settlement ledger with cryptographic receipt hashes (CP-REC-XXXXX) & pediatric pool funds."),
+        ("🤖 Health API & Liveness Probe", "https://integrate-europe-compilation-planets.trycloudflare.com/healthz", "Open Health API (/healthz)", "Machine-readable JSON status endpoint powering Google Cloud Run automated liveness probes."),
+        ("🐙 GitHub Source Code Repository", "https://github.com/prabhasuria/The_404_Brigade", "GitHub Repository", "Complete open-source codebase, test suites, documentation, and deployment manifests.")
+    ]
+
+    for row_idx, (pname, url, link_text, desc) in enumerate(key_links):
+        row_cells = links_table.add_row().cells
+        bg_col = "FFFFFF" if row_idx % 2 == 0 else "F0FDFA"
+        for i in range(3):
+            set_cell_background(row_cells[i], bg_col)
+            set_cell_margins(row_cells[i], top=100, bottom=100, left=120, right=120)
+        
+        # Cell 0: Name
+        p0 = row_cells[0].paragraphs[0]
+        p0.paragraph_format.space_after = Pt(0)
+        r0 = p0.add_run(pname)
+        r0.bold = True
+        r0.font.size = Pt(9.5)
+        
+        # Cell 1: Hyperlink
+        p1 = row_cells[1].paragraphs[0]
+        p1.paragraph_format.space_after = Pt(0)
+        add_hyperlink(p1, url, link_text, color="0D9488", underline=True)
+        p1_url = p1.add_run(f"\n{url}")
+        p1_url.font.size = Pt(7.5)
+        p1_url.font.color.rgb = RGBColor(100, 116, 139)
+        
+        # Cell 2: Description
+        p2 = row_cells[2].paragraphs[0]
+        p2.paragraph_format.space_after = Pt(0)
+        r2 = p2.add_run(desc)
+        r2.font.size = Pt(9.0)
+
+    doc.add_paragraph().paragraph_format.space_after = Pt(12)
 
     # Section 1: Executive Summary
     add_h1("1. Executive Summary")
@@ -330,25 +410,32 @@ def create_word_document():
     doc.add_paragraph("Judges can verify all eight hackathon requirements by executing this guided 5-step walkthrough:")
     
     steps = [
-        ("Step 1: Campaign Discovery & Lifecycle States (/)", 
+        ("Step 1: Campaign Discovery & Lifecycle States",
+         "https://integrate-europe-compilation-planets.trycloudflare.com/",
          "View four live campaigns: Rohan Verma ($19,450 raised of $22,000, Active), Ananya Roy ($15,000 Target Reached, Overfunding Active), Vikram Singh (Discrepancy Flagged), and Baby Elroy SMA ($2.1M viral case)."),
-        ("Step 2: Real-Time Donation & Mutex Auto-Lock (/campaign/cmp_rohan_heart)", 
+        ("Step 2: Real-Time Donation & Mutex Auto-Lock", 
+         "https://integrate-europe-compilation-planets.trycloudflare.com/campaign/cmp_rohan_heart",
          "Observe the direct escrow routing to Apollo Hospitals. Click 'Test Overfunding Protection'. Watch the progress bar instantly hit 100%, trigger the amber lock banner, and verify that subsequent donation attempts are rejected."),
-        ("Step 3: Gemini Multilingual Creator Studio (/creator-studio)", 
+        ("Step 3: Gemini Multilingual Creator Studio", 
+         "https://integrate-europe-compilation-planets.trycloudflare.com/creator-studio",
          "Select Hindi or Spanish to generate a 9:16 vertical Reel script with shot-by-shot visual cues and voiceovers. View it rendered live inside the interactive smartphone simulator with the CareProof Verified Badge."),
         ("Step 4: Viral Story Scanner (Tab 5 of Creator Studio)", 
+         "https://integrate-europe-compilation-planets.trycloudflare.com/creator-studio?tab=scanner",
          "Run the Gemini Vision scanner on the Baby Elroy viral flyer. Observe the forensic analysis flagging the personal UPI ID and unlinked GoFundMe campaign, with an instant one-click path to transparent escrow."),
-        ("Step 5: Verifier Copilot & Hospital Settlement Ledger (/verifier & /hospital-escrow)", 
+        ("Step 5: Verifier Copilot & Hospital Settlement Ledger", 
+         "https://integrate-europe-compilation-planets.trycloudflare.com/verifier",
          "Review Vikram Singh's pending campaign where Gemini flags the +89% inflation discrepancy ($35k requested vs $18.5k hospital quote). Then view Apollo's live settlement ledger showing cryptographic payout records.")
     ]
     
-    for title, desc in steps:
+    for title, url, desc in steps:
         p = doc.add_paragraph()
-        p.paragraph_format.space_before = Pt(6)
+        p.paragraph_format.space_before = Pt(8)
         p.paragraph_format.space_after = Pt(2)
-        r_t = p.add_run(title + "\n")
+        r_t = p.add_run(title + " — ")
         r_t.bold = True
-        r_t.font.color.rgb = RGBColor(13, 148, 136)
+        r_t.font.color.rgb = RGBColor(15, 23, 42)
+        add_hyperlink(p, url, "[Click to Open Live Page]", color="0D9488", underline=True)
+        p.add_run("\n")
         r_d = p.add_run(desc)
         r_d.font.size = Pt(10.5)
         

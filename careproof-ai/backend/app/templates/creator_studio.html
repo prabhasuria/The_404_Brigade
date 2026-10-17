@@ -348,6 +348,13 @@
 </div>
 
 <script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const tabParam = new URLSearchParams(window.location.search).get('tab');
+    if (tabParam && document.getElementById(`tab-btn-${tabParam}`)) {
+      switchTab(tabParam);
+    }
+  });
+
   function switchTab(tab) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('bg-slate-900', 'text-white'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
